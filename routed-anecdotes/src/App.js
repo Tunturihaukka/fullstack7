@@ -1,8 +1,28 @@
 import { useState } from 'react'
 import {
   BrowserRouter as Router,
-  Routes, Route, Link
+  Routes, Route, Link, useParams
 } from 'react-router-dom'
+
+const Anecdote = ({ anecdotes }) => {
+  const id = useParams().id
+  const idCheck = ( anecdote ) => {
+    if (anecdote.id === Number(id)) {
+      return true
+    }
+    return false
+  }
+  const anecdote = anecdotes.find(idCheck)
+
+
+  return (
+    <div>
+      <h2>{anecdote.content} by {anecdote.author}</h2>
+      <div>has {anecdote.votes} votes</div>
+      <div>for more info see <Link to={anecdote.info}>{anecdote.info}</Link></div>
+    </div>
+  )
+}
 
 const Menu = ({ anecdotes, addNew }) => {
   const padding = {
@@ -19,6 +39,7 @@ const Menu = ({ anecdotes, addNew }) => {
       </div>
 
       <Routes>
+        <Route path="/anecdotes/:id" element={<Anecdote anecdotes={anecdotes} />} />
         <Route path="/" element={<AnecdoteList anecdotes={anecdotes} />} />
         <Route path="/about" element={<About />} />
         <Route path="/create" element={<CreateNew addNew={addNew} />} />
@@ -32,7 +53,11 @@ const AnecdoteList = ({ anecdotes }) => (
   <div>
     <h2>Anecdotes</h2>
     <ul>
-      {anecdotes.map(anecdote => <li key={anecdote.id} >{anecdote.content}</li>)}
+      {anecdotes.map(anecdote =>
+        <li key={anecdote.id}>
+          <Link to={`/anecdotes/${anecdote.id}`}>{anecdote.content}</Link>
+        </li>
+      )}
     </ul>
   </div>
 )
@@ -122,7 +147,6 @@ const App = () => {
     anecdote.id = Math.round(Math.random() * 10000)
     setAnecdotes(anecdotes.concat(anecdote))
   }
-
   const anecdoteById = (id) =>
     anecdotes.find(a => a.id === id)
 
